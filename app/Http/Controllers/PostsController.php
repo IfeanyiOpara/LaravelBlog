@@ -143,7 +143,7 @@ class PostsController extends Controller
 
         $data = array(
             "posts" => Post::orderBy('created_at','desc')->get(),
-            "users" => User::orderBy(DB::raw('RAND()'))->paginate(10),
+            "users" => User::orderBy('created_at','desc')->paginate(10),
             'friends' => Friendship::where('user_requested', $user_id)->get(),
             'auth_user' => Auth()->user()->id,
             'post1' => Post::find($id)
