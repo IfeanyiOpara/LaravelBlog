@@ -65,7 +65,7 @@ class PostsController extends Controller
 
         $data = array(
             "posts" => Post::orderBy('created_at','desc')->paginate(10),
-            "users" => User::orderBy(DB::raw('RAND()'))->paginate(10),
+            "users" => User::orderBy('created_at','desc')->paginate(10),
             'friends' => Friendship::where('user_requested', $user_id)->get(),
             'auth_user' => Auth()->user()->id
             //"comments" => Comment::where('post_id', $this->get_post_id)->get(),
