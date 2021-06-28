@@ -13,12 +13,12 @@
                 <li class="nav-item">
                   <a class="nav-link" href="/" >Home</a>
                 </li>
-                <li class="nav-item">
+                <!-- <li class="nav-item">
                   <a class="nav-link"  href="/about" >About</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link"  href="/services" >Services</a>
-                </li>
+                </li> -->
                 <li class="nav-item">
                   <a class="nav-link"  href="/posts" >Blog</a>
                 </li>
