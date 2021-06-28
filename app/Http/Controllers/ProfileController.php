@@ -17,7 +17,7 @@ class ProfileController extends Controller
     public function index()
     {
         //
-        if(auth()->user()->id){
+        if(auth()->user()->id == null){
             redirect('/login');
         }else{
             $id = Auth()->user()->id;
@@ -87,7 +87,7 @@ class ProfileController extends Controller
     public function update(Request $request, $id)
     {
         
-        if(auth()->user()->id){
+        if(auth()->user()->id == null){
             redirect('//login');
         }
         else{
