@@ -111,6 +111,7 @@ class PagesController extends Controller
 
         if(!Auth::check()){
             return view('auth.login');
+            
         }
         else{
             $user = Auth()->user()->id;
