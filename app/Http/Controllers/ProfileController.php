@@ -17,17 +17,21 @@ class ProfileController extends Controller
     public function index()
     {
         //
-        $id = Auth()->user()->id;
+        if(auth()->user()->id){
+            redirect('/login');
+        }else{
+            $id = Auth()->user()->id;
     
-        $data = Array(
-            "user" => User::find($id),
-            "friends" => collect(User::find($id)->friends()),
-            "posts" => Post::orderBy('created_at','desc')->paginate(10),
-            "friends_list" => User::find($id)->friends()
-        );
+            $data = Array(
+                "user" => User::find($id),
+                "friends" => collect(User::find($id)->friends()),
+                "posts" => Post::orderBy('created_at','desc')->paginate(10),
+                "friends_list" => User::find($id)->friends()
+            );
 
 
-            return view('pages.profile')->with($data);   
+                return view('pages.profile')->with($data);   
+        }
     }
 
     /**
@@ -83,34 +87,39 @@ class ProfileController extends Controller
     public function update(Request $request, $id)
     {
         
-        $this->validate($request, [
-            // 'title' => 'required',
-            // 'body' => 'required',
-            'profile_image' => 'image|nullable|max:1999'
-        ]);
-
-        if($request->hasFile('profile_image')){
-            //Get file name with extension
-            $fileNameWWithExt = $request->file('profile_image')->getClientOriginalName();
-            //Get just file name
-            $fileName = pathinfo($fileNameWWithExt, PATHINFO_FILENAME);
-            //Get just ext
-            $extension = $request->file('profile_image')->getClientOriginalExtension();
-            //FileNameToStore
-            $fileNameToStore = $fileName.'_'.time().'.'.$extension;
-            //Upload Image
-            $path = $request->file('profile_image')->storeAs('public/profile_image', $fileNameToStore);
+        if(auth()->user()->id){
+            redirect('//login');
         }
-
-        $user = User::find($id);
-        $user->name = $request->input('name');
-        // $user->password = $request->input('password');
-        if($request->hasFile('profile_image')){
-            $user->profile_image = $fileNameToStore;
+        else{
+            $this->validate($request, [
+                // 'title' => 'required',
+                // 'body' => 'required',
+                'profile_image' => 'image|nullable|max:1999'
+            ]);
+    
+            if($request->hasFile('profile_image')){
+                //Get file name with extension
+                $fileNameWWithExt = $request->file('profile_image')->getClientOriginalName();
+                //Get just file name
+                $fileName = pathinfo($fileNameWWithExt, PATHINFO_FILENAME);
+                //Get just ext
+                $extension = $request->file('profile_image')->getClientOriginalExtension();
+                //FileNameToStore
+                $fileNameToStore = $fileName.'_'.time().'.'.$extension;
+                //Upload Image
+                $path = $request->file('profile_image')->storeAs('public/profile_image', $fileNameToStore);
+            }
+    
+            $user = User::find($id);
+            $user->name = $request->input('name');
+            // $user->password = $request->input('password');
+            if($request->hasFile('profile_image')){
+                $user->profile_image = $fileNameToStore;
+            }
+            $user->save();
+    
+            return redirect('/profile')->with('success','Profile Updated');
         }
-        $user->save();
-
-        return redirect('/profile')->with('success','Profile Updated');
     }
 
     /**

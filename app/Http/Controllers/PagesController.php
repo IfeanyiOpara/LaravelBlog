@@ -108,14 +108,22 @@ class PagesController extends Controller
 
     public function notification(){
 
-        $user = Auth()->user()->id;
-        $pendings = User::find($user)->pending_friend_request();
 
-        return view('pages.notification')->with('pendings',$pendings);
+        if(auth()->user()->id == null){
+            redirect('/login');
+        }
+        else{
+            $user = Auth()->user()->id;
+            $pendings = User::find($user)->pending_friend_request();
+
+            return view('pages.notification')->with('pendings',$pendings);
+        }
 
     }
 
     public function search_user(Request $request){
+
+        if(auth)
 
         $name = $request->input('name');
 

@@ -50,31 +50,36 @@ class PostsController extends Controller
 
     public function index()
     {
-        //$posts = Post::all();
-        //return Post::where('title', 'First Post')->get();
-        //$posts = DB::select('select * from posts');
-        //$posts = Post::orderBy('title','desc')->take(1)->get();
-        //$posts = Post::orderBy('title','desc')->get();
 
-        // $comment = Comment::where('post_id', $this->get_post_id)->get();
-        // echo $this->get_post_id;
-        // echo $this->dd;
+        if(auth()->user()->id == null){
+            redirect('/login');
+        }else{
+            //$posts = Post::all();
+            //return Post::where('title', 'First Post')->get();
+            //$posts = DB::select('select * from posts');
+            //$posts = Post::orderBy('title','desc')->take(1)->get();
+            //$posts = Post::orderBy('title','desc')->get();
 
-        $user_id = Auth()->user()->id;
-        $friends = Friendship::where('user_requested', $user_id);   
+            // $comment = Comment::where('post_id', $this->get_post_id)->get();
+            // echo $this->get_post_id;
+            // echo $this->dd;
 
-        $data = array(
-            "posts" => Post::orderBy('created_at','desc')->paginate(10),
-            "users" => User::orderBy('created_at','desc')->paginate(10),
-            'friends' => Friendship::where('user_requested', $user_id)->get(),
-            'auth_user' => Auth()->user()->id
-            //"comments" => Comment::where('post_id', $this->get_post_id)->get(),
-            //"under" => $this->get_post_id
-        );
+            $user_id = Auth()->user()->id;
+            $friends = Friendship::where('user_requested', $user_id);   
 
-        // $dates = Carbon::now()->addDays('{{$posts->created_at}}')->diffForHumans();
+            $data = array(
+                "posts" => Post::orderBy('created_at','desc')->paginate(10),
+                "users" => User::orderBy('created_at','desc')->paginate(10),
+                'friends' => Friendship::where('user_requested', $user_id)->get(),
+                'auth_user' => Auth()->user()->id
+                //"comments" => Comment::where('post_id', $this->get_post_id)->get(),
+                //"under" => $this->get_post_id
+            );
 
-        return view('posts.index')->with($data);
+            // $dates = Carbon::now()->addDays('{{$posts->created_at}}')->diffForHumans();
+
+            return view('posts.index')->with($data);
+        }
         
     }
 
@@ -86,7 +91,11 @@ class PostsController extends Controller
     public function create()
     {
         //
-        return view('posts.create');
+        if(auth()->user()->id == null){
+            redirect('/login')
+        }else{
+            return view('posts.create');
+        }
     }
 
     /**
@@ -97,37 +106,41 @@ class PostsController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request, [
-            'title' => 'required',
-            'body' => 'required',
-            'cover_image' => 'image|nullable|max:1999'
-        ]);
-
-        //Handle file Upload
-        if($request->hasFile('cover_image')){
-            //Get file name with extension
-            $fileNameWWithExt = $request->file('cover_image')->getClientOriginalName();
-            //Get just file name
-            $fileName = pathinfo($fileNameWWithExt, PATHINFO_FILENAME);
-            //Get just ext
-            $extension = $request->file('cover_image')->getClientOriginalExtension();
-            //FileNameToStore
-            $fileNameToStore = $fileName.'_'.time().'.'.$extension;
-            //Upload Image
-            $path = $request->file('cover_image')->storeAs('public/cover_images', $fileNameToStore);
+        if(auth()->user()->id == null){
+            redirect('/login');
         }else{
-            $fileNameToStore = 'noimage.jpg';
+            $this->validate($request, [
+                'title' => 'required',
+                'body' => 'required',
+                'cover_image' => 'image|nullable|max:1999'
+            ]);
+    
+            //Handle file Upload
+            if($request->hasFile('cover_image')){
+                //Get file name with extension
+                $fileNameWWithExt = $request->file('cover_image')->getClientOriginalName();
+                //Get just file name
+                $fileName = pathinfo($fileNameWWithExt, PATHINFO_FILENAME);
+                //Get just ext
+                $extension = $request->file('cover_image')->getClientOriginalExtension();
+                //FileNameToStore
+                $fileNameToStore = $fileName.'_'.time().'.'.$extension;
+                //Upload Image
+                $path = $request->file('cover_image')->storeAs('public/cover_images', $fileNameToStore);
+            }else{
+                $fileNameToStore = 'noimage.jpg';
+            }
+    
+            //Create Post
+            $post = new Post;
+            $post->title = $request->input('title');
+            $post->body = $request->input('body');
+            $post->user_id = auth()->user()->id;
+            $post->cover_image = $fileNameToStore;
+            $post->save();
+    
+            return redirect('/posts')->with('success','Post Created');
         }
-
-        //Create Post
-        $post = new Post;
-        $post->title = $request->input('title');
-        $post->body = $request->input('body');
-        $post->user_id = auth()->user()->id;
-        $post->cover_image = $fileNameToStore;
-        $post->save();
-
-        return redirect('/posts')->with('success','Post Created');
     }
 
     /**
@@ -139,20 +152,24 @@ class PostsController extends Controller
     public function show($id)
     {
         //
-        $user_id = Auth()->user()->id;
+        if(Auth()->user()->id === null){
+            redirect('/login');
+        }else{
+            $user_id = Auth()->user()->id;
 
-        $data = array(
-            "posts" => Post::orderBy('created_at','desc')->get(),
-            "users" => User::orderBy('created_at','desc')->paginate(10),
-            'friends' => Friendship::where('user_requested', $user_id)->get(),
-            'auth_user' => Auth()->user()->id,
-            'post1' => Post::find($id)
-            //"comments" => Comment::where('post_id', $this->get_post_id)->get(),
-            //"under" => $this->get_post_id
-        );
+            $data = array(
+                "posts" => Post::orderBy('created_at','desc')->get(),
+                "users" => User::orderBy('created_at','desc')->paginate(10),
+                'friends' => Friendship::where('user_requested', $user_id)->get(),
+                'auth_user' => Auth()->user()->id,
+                'post1' => Post::find($id)
+                //"comments" => Comment::where('post_id', $this->get_post_id)->get(),
+                //"under" => $this->get_post_id
+            );
 
-        
-        return view('posts.show')->with($data);
+            
+            return view('posts.show')->with($data);
+        }
     }
 
     /**
@@ -167,11 +184,15 @@ class PostsController extends Controller
         $post = Post::find($id);
 
         // check for correct user
-        if(auth()->user()->id !== $post->user_id){
-            return redirect('/posts')->with('error', 'Unauthorized Page');    
+        if(auth()->user()->id == null){
+            redirect('login');
+        }else{
+            if(auth()->user()->id !== $post->user_id){
+                return redirect('/posts')->with('error', 'Unauthorized Page');    
+            }
+    
+            return view('posts.edit')->with('post', $post);
         }
-
-        return view('posts.edit')->with('post', $post);
     }
 
     /**
@@ -224,18 +245,23 @@ class PostsController extends Controller
         //
         $post = Post::find($id);
 
-        if(auth()->user()->id !== $post->user_id){
-            return redirect('/posts')->with('error', 'Unauthorized Page');    
+        if(auth()->user()->id == null){
+            redirect('/login')
         }
-
-        if($post->cover_image != 'noimage.jpg'){
-            //Delete Image
-            Storage::delete('public/cover_images/'.$post->cover_image);
+        else{
+            if(auth()->user()->id !== $post->user_id){
+                return redirect('/posts')->with('error', 'Unauthorized Page');    
+            }
+    
+            if($post->cover_image != 'noimage.jpg'){
+                //Delete Image
+                Storage::delete('public/cover_images/'.$post->cover_image);
+            }
+    
+            $post->delete();
+    
+            return redirect('/posts')->with('success','Post Deleted');
         }
-
-        $post->delete();
-
-        return redirect('/posts')->with('success','Post Deleted');
     }
 
     
