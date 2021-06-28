@@ -109,8 +109,8 @@ class PagesController extends Controller
     public function notification(){
 
 
-        if(auth()->user()->id == null){
-            redirect('/login');
+        if(!Auth::check()){
+            return view('auth.login');
         }
         else{
             $user = Auth()->user()->id;
@@ -123,7 +123,7 @@ class PagesController extends Controller
 
     public function search_user(Request $request){
 
-        if(auth)
+    
 
         $name = $request->input('name');
 
