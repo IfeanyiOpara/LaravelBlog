@@ -19,7 +19,7 @@ class ProfileController extends Controller
     {
         //
         if(!Auth::check()){
-            redirect('/login');
+            return view('auth.login'); 
         }else{
             $id = Auth()->user()->id;
     
@@ -89,7 +89,7 @@ class ProfileController extends Controller
     {
         
         if(!Auth::check()){
-            redirect('/login');
+            return view('auth.login'); 
         }
         else{
             $this->validate($request, [

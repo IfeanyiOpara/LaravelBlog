@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Post;
 use App\User;
+use Auth;
 use App\Friendship;
 use DB;
 use App\Comment;
@@ -51,8 +52,8 @@ class PostsController extends Controller
     public function index()
     {
 
-        if(auth()->user()->id == null){
-            redirect('/login');
+        if(!Auth::check()){
+            return view('auth.login'); 
         }else{
             //$posts = Post::all();
             //return Post::where('title', 'First Post')->get();
@@ -91,8 +92,8 @@ class PostsController extends Controller
     public function create()
     {
         //
-        if(auth()->user()->id == null){
-            redirect('/login')
+        if(!Auth::check()){
+            return view('auth.login'); 
         }else{
             return view('posts.create');
         }
@@ -106,8 +107,8 @@ class PostsController extends Controller
      */
     public function store(Request $request)
     {
-        if(auth()->user()->id == null){
-            redirect('/login');
+        if(!Auth::check()){
+            return view('auth.login'); 
         }else{
             $this->validate($request, [
                 'title' => 'required',
@@ -152,8 +153,8 @@ class PostsController extends Controller
     public function show($id)
     {
         //
-        if(Auth()->user()->id === null){
-            redirect('/login');
+        if(!Auth::check()){
+            return view('auth.login'); 
         }else{
             $user_id = Auth()->user()->id;
 
@@ -184,8 +185,8 @@ class PostsController extends Controller
         $post = Post::find($id);
 
         // check for correct user
-        if(auth()->user()->id == null){
-            redirect('login');
+        if(!Auth::check()){
+            return view('auth.login'); 
         }else{
             if(auth()->user()->id !== $post->user_id){
                 return redirect('/posts')->with('error', 'Unauthorized Page');    
@@ -245,8 +246,8 @@ class PostsController extends Controller
         //
         $post = Post::find($id);
 
-        if(auth()->user()->id == null){
-            redirect('/login')
+        if(!Auth::check()){
+            return view('auth.login'); 
         }
         else{
             if(auth()->user()->id !== $post->user_id){
