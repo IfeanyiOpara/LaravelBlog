@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\User;
 use App\Post;
+use Auth;
 
 class PagesController extends Controller
 {
@@ -111,7 +112,7 @@ class PagesController extends Controller
 
         if(!Auth::check()){
             return view('auth.login');
-            
+
         }
         else{
             $user = Auth()->user()->id;
