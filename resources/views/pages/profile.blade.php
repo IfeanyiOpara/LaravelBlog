@@ -41,10 +41,12 @@
             <div class="row">
                 @if (count($posts) > 0)
                     @foreach ($posts as $post)
+                        if($post->user_id === Auth::user()->id)
                             <div class="col-sm-6 mt-3">
                                 <img height="60%" src="/storage/cover_images/{{$post->cover_image}}" class="container-fluid" alt="">  
                                 <h6 style="font-weight: 450" class="ml-3">{{$post->title}}</h6>
-                            </div>                   
+                            </div>
+                        @endif                   
                     @endforeach
                     {{-- {{$users->links()}} --}}
                 @else
